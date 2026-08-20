@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step Into INTL Law</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --navy-950:#060c1e;
+    --navy-900:#0a1229;
+    --navy-800:#0e1c3f;
+    --navy-700:#152a56;
+    --navy-500:#2c4a86;
+    --ivory:#eef1f7;
+    --ivory-dim:#b9c3d9;
+    --gold:#c9a227;
+    --gold-dim:#8a7327;
+    --line:rgba(238,241,247,0.14);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--navy-950);
+    color:var(--ivory);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px clamp(20px,4vw,56px);
+    background:rgba(6,12,30,0.72);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    transition:padding 0.3s ease;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .brand svg{width:30px;height:30px;flex-shrink:0;}
+
+  .brand-name{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:1.02rem;
+    letter-spacing:0.01em;
+    line-height:1.05;
+  }
+  .brand-name .step{color:var(--gold);}
+
+  nav ul{
+    display:flex;
+    list-style:none;
+    gap:clamp(18px,2.4vw,38px);
+  }
+
+  nav a{
+    font-size:0.86rem;
+    font-weight:500;
+    color:var(--ivory-dim);
+    position:relative;
+    padding-bottom:4px;
+    transition:color 0.25s ease;
+  }
+  nav a::after{
+    content:"";
+    position:absolute;
+    left:0;bottom:0;
+    width:0%;
+    height:1px;
+    background:var(--gold);
+    transition:width 0.3s ease;
+  }
+  nav a:hover{color:var(--ivory);}
+  nav a:hover::after{width:100%;}
+
+  .nav-cta{
+    border:1px solid var(--gold-dim);
+    padding:9px 18px;
+    border-radius:2px;
+    font-size:0.8rem;
+    font-weight:600;
+    letter-spacing:0.03em;
+    color:var(--gold);
+    transition:background 0.25s ease, color 0.25s ease;
+  }
+  .nav-cta:hover{background:var(--gold);color:var(--navy-950);}
+
+  .nav-toggle{display:none;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:140px 24px 80px;
+    overflow:hidden;
+  }
+
+  #globe-canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    opacity:0.9;
+  }
+
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(ellipse at 50% 38%, rgba(21,42,86,0.25), rgba(6,12,30,0.92) 68%);
+    z-index:1;
+  }
+
+  .hero-inner{
+    position:relative;
+    z-index:2;
+    max-width:840px;
+  }
+
+  .hero .eyebrow{
+    display:inline-block;
+    margin-bottom:22px;
+  }
+
+  .hero h1{
+    font-size:clamp(2.6rem,7vw,5.4rem);
+    line-height:0.98;
+    color:var(--ivory);
+  }
+  .hero h1 span{
+    display:block;
+    color:var(--gold);
+    font-style:italic;
+    font-weight:500;
+  }
+
+  .hero p.lede{
+    margin:26px auto 0;
+    max-width:560px;
+    font-size:1.05rem;
+    line-height:1.6;
+    color:var(--ivory-dim);
+  }
+
+  .hero-actions{
+    margin-top:38px;
+    display:flex;
+    gap:16px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:14px 26px;
+    font-size:0.86rem;
+    font-weight:600;
+    letter-spacing:0.02em;
+    border-radius:2px;
+    transition:transform 0.25s ease, background 0.25s ease, border-color .25s ease, color .25s ease;
+  }
+  .btn-primary{
+    background:var(--gold);
+    color:var(--navy-950);
+  }
+  .btn-primary:hover{transform:translateY(-2px);background:#e0b62f;}
+  .btn-secondary{
+    border:1px solid var(--line);
+    color:var(--ivory);
+  }
+  .btn-secondary:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px);}
+
+  .scroll-cue{
+    position:absolute;
+    bottom:28px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:2;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.68rem;
+    letter-spacing:0.2em;
+    color:var(--ivory-dim);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  .scroll-cue .line{
+    width:1px;
+    height:34px;
+    background:linear-gradient(var(--gold),transparent);
+    animation:pulse-line 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse-line{
+    0%,100%{opacity:0.3;}
+    50%{opacity:1;}
+  }
+
+  /* ---------- SECTION SHELL ---------- */
+  section{
+    padding:100px clamp(20px,6vw,80px);
+    position:relative;
+  }
+
+  .section-head{
+    max-width:640px;
+    margin-bottom:56px;
+  }
+  .section-head h2{
+    font-size:clamp(1.9rem,3.4vw,2.6rem);
+    margin-top:12px;
+    color:var(--ivory);
+  }
+  .section-head p{
+    margin-top:16px;
+    color:var(--ivory-dim);
+    font-size:1rem;
+    line-height:1.7;
+  }
+
+  /* ---------- MISSION ---------- */
+  .mission{
+    background:var(--navy-900);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .mission-grid{
+    display:grid;
+    grid-template-columns:0.9fr 1.1fr;
+    gap:64px;
+    align-items:start;
+  }
+
+  .mission-figure{
+    position:sticky;
+    top:120px;
+  }
+  .stair-svg{width:100%;max-width:340px;}
+
+  .mission-copy p{
+    color:var(--ivory-dim);
+    font-size:1.02rem;
+    line-height:1.85;
+    margin-bottom:22px;
+  }
+  .mission-copy p:first-of-type{
+    color:var(--ivory);
+    font-size:1.14rem;
+  }
+  .mission-copy strong{color:var(--gold);font-weight:600;}
+
+  /* ---------- PATHWAYS (jobs / scholarships) ---------- */
+  .pathways-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+
+  .path-card{
+    background:var(--navy-950);
+    padding:38px 30px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    transition:background 0.3s ease;
+  }
+  .path-card:hover{background:var(--navy-800);}
+
+  .path-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    color:var(--gold);
+    letter-spacing:0.08em;
+  }
+
+  .path-card h3{
+    font-size:1.3rem;
+    color:var(--ivory);
+    font-weight:500;
+  }
+
+  .path-card p{
+    color:var(--ivory-dim);
+    font-size:0.92rem;
+    line-height:1.65;
+    flex-grow:1;
+  }
+
+  .path-link{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    letter-spacing:0.04em;
+    color:var(--ivory);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+    transition:color 0.25s ease,gap 0.25s ease;
+  }
+  .path-card:hover .path-link{color:var(--gold);gap:12px;}
+
+  /* ---------- MAP PREVIEW ---------- */
+  .map-preview{
+    background:var(--navy-900);
+    border-top:1px solid var(--line);
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    align-items:center;
+    padding:0;
+  }
+  .map-copy{padding:100px clamp(20px,6vw,80px);}
+  .map-copy .section-head{margin-bottom:30px;}
+
+  .map-visual{
+    position:relative;
+    height:100%;
+    min-height:420px;
+    background:var(--navy-950);
+    border-left:1px solid var(--line);
+    overflow:hidden;
+  }
+  #pin-canvas{width:100%;height:100%;display:block;}
+
+  .toggle-row{
+    display:flex;
+    gap:10px;
+    margin-top:26px;
+  }
+  .toggle-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    letter-spacing:0.04em;
+    padding:9px 16px;
+    border:1px solid var(--line);
+    color:var(--ivory-dim);
+    border-radius:2px;
+    cursor:pointer;
+    background:transparent;
+    transition:all 0.25s ease;
+  }
+  .toggle-btn.active{
+    border-color:var(--gold);
+    color:var(--gold);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    background:var(--navy-950);
+    border-top:1px solid var(--line);
+    padding:60px clamp(20px,6vw,80px) 30px;
+  }
+  .footer-top{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:40px;
+    padding-bottom:40px;
+    border-bottom:1px solid var(--line);
+  }
+  .footer-brand .brand-name{font-size:1.1rem;}
+  .footer-brand p{
+    margin-top:14px;
+    color:var(--ivory-dim);
+    font-size:0.9rem;
+    max-width:320px;
+    line-height:1.6;
+  }
+  .footer-links{
+    display:flex;
+    gap:60px;
+    flex-wrap:wrap;
+  }
+  .footer-col h4{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:16px;
+  }
+  .footer-col a{
+    display:block;
+    color:var(--ivory-dim);
+    font-size:0.88rem;
+    margin-bottom:10px;
+    transition:color 0.2s ease;
+  }
+  .footer-col a:hover{color:var(--ivory);}
+
+  .disclaimer{
+    padding-top:26px;
+    font-size:0.74rem;
+    line-height:1.7;
+    color:rgba(185,195,217,0.55);
+  }
+  .disclaimer p{margin-bottom:8px;}
+
+  .fade-in{
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity 0.8s ease, transform 0.8s ease;
+  }
+  .fade-in.visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  @media (max-width:900px){
+    nav ul, .nav-cta{display:none;}
+    .mission-grid{grid-template-columns:1fr;}
+    .mission-figure{position:static;margin:0 auto 40px;}
+    .pathways-grid{grid-template-columns:1fr;}
+    .map-preview{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="19" stroke="#eef1f7" stroke-width="1.4"/>
+      <path d="M6 20c6 3 10 3 16-1s12-4 20 0" stroke="#eef1f7" stroke-width="1" opacity="0.55"/>
+      <path d="M9 30c7-3 13 1 19-2s10-4 16-1" stroke="#eef1f7" stroke-width="1" opacity="0.4"/>
+      <path d="M12 12l4 5 4-3 4 6 5-2" stroke="#c9a227" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div class="brand-name"><span class="step">Step Into</span><br>INTL Law</div>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#pathways">Portfolios</a></li>
+      <li><a href="#pathways">Jobs Board</a></li>
+      <li><a href="#map">Scholarships</a></li>
+      <li><a href="#mission">Mission</a></li>
+    </ul>
+  </nav>
+  <a class="nav-cta" href="#join">Join Us</a>
+</header>
+
+<section class="hero">
+  <canvas id="globe-canvas"></canvas>
+  <div class="hero-inner">
+    <span class="eyebrow">A pathway for future practitioners</span>
+    <h1>Find your way into<span>international law</span></h1>
+    <p class="lede">Step Into INTL Law demystifies careers, postgraduate study and scholarships for Australian students who want to shape the global rule of law — but don't know where the first step is.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#pathways">Explore opportunities</a>
+      <a class="btn btn-secondary" href="#mission">Read our mission</a>
+    </div>
+  </div>
+  <div class="scroll-cue"><span class="line"></span>SCROLL</div>
+</section>
+
+<section class="mission" id="mission">
+  <div class="mission-grid">
+    <div class="mission-figure fade-in">
+      <svg class="stair-svg" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="160" cy="160" r="118" stroke="#2c4a86" stroke-width="1"/>
+        <circle cx="160" cy="160" r="150" stroke="#152a56" stroke-width="1"/>
+        <g id="stair-steps">
+          <rect x="70" y="240" width="34" height="14" fill="#c9a227"/>
+          <rect x="104" y="216" width="34" height="14" fill="#c9a227" opacity="0.92"/>
+          <rect x="138" y="192" width="34" height="14" fill="#c9a227" opacity="0.84"/>
+          <rect x="172" y="168" width="34" height="14" fill="#c9a227" opacity="0.76"/>
+          <rect x="206" y="144" width="34" height="14" fill="#c9a227" opacity="0.68"/>
+        </g>
+        <path d="M232 150 A70 70 0 1 1 150 82" stroke="#eef1f7" stroke-width="1.4" fill="none" opacity="0.65"/>
+        <path d="M55 150c22 10 40 10 60-2s44-14 74 0 60 4 78-8" stroke="#eef1f7" stroke-width="0.8" opacity="0.3"/>
+        <path d="M60 190c24-8 46 4 68-2s48-16 74-4 52 10 70 0" stroke="#eef1f7" stroke-width="0.8" opacity="0.22"/>
+      </svg>
+    </div>
+    <div class="mission-copy">
+      <span class="eyebrow">Mission statement</span>
+      <h2 style="margin:12px 0 24px;font-size:clamp(1.6rem,2.6vw,2.1rem);">Every step toward the international rule of law starts with knowing there's a step to take.</h2>
+      <p>Step Into INTL Law exists to help students interested in international law step into their dream career, producing professional development, postgraduate study guidance and knowledge content that demystifies international law career paths for the next generation of young Australian leaders.</p>
+      <p>The organisation was born out of students' uncertainty. Young people are passionate about international law, but many can't find their first step — not for lack of ambition, but for lack of accessible resources, networks and platforms that speak to it from an Australian perspective. Without a place to start, that passion drifts toward more conventional routes.</p>
+      <p>International law touches every part of our lives — from the sanctity of human rights to the security of nations and the flow of trade in essential goods. Losing young talent to more conventional paths has real consequences for Australia's agency on the global stage. <strong>It's time we took the first step.</strong></p>
+    </div>
+  </div>
+</section>
+
+<section id="pathways">
+  <div class="section-head fade-in">
+    <span class="eyebrow">Where do you want to start?</span>
+    <h2>Two boards. One first step.</h2>
+    <p>Browse graduate roles and internships from organisations across the field, or scan open scholarships by type, location and closing date — built for the way students actually search.</p>
+  </div>
+  <div class="pathways-grid fade-in">
+    <div class="path-card">
+      <span class="path-num">01</span>
+      <h3>Jobs Board</h3>
+      <p>Graduate programs, internships and entry-level roles from firms, NGOs and government — sorted by organisation, location and closing date, with direct links to apply.</p>
+      <a class="path-link" href="#">View jobs &amp; internships →</a>
+    </div>
+    <div class="path-card">
+      <span class="path-num">02</span>
+      <h3>Scholarships Board</h3>
+      <p>Undergraduate, postgraduate and short-course scholarships worldwide — filter by type and closing date, with clickable links straight through to each application page.</p>
+      <a class="path-link" href="#">View scholarships →</a>
+    </div>
+    <div class="path-card">
+      <span class="path-num">03</span>
+      <h3>Submit an Opportunity</h3>
+      <p>Representing an organisation or university? Advertise a role, internship or scholarship to a community of students actively looking to step into the field.</p>
+      <a class="path-link" href="#">Submit an opportunity →</a>
+    </div>
+  </div>
+</section>
+
+<section class="map-preview" id="map">
+  <div class="map-copy">
+    <div class="section-head fade-in">
+      <span class="eyebrow">Search by map</span>
+      <h2>See where the opportunity is.</h2>
+      <p>Toggle between career opportunities and scholarships to see them plotted by location. Click a pin for the role or scholarship name, organisation, type and closing date — no digging required.</p>
+    </div>
+    <div class="toggle-row fade-in">
+      <button class="toggle-btn active" data-mode="jobs">Careers &amp; Jobs</button>
+      <button class="toggle-btn" data-mode="scholarships">Scholarships</button>
+    </div>
+  </div>
+  <div class="map-visual">
+    <canvas id="pin-canvas"></canvas>
+  </div>
+</section>
+
+<footer id="join">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="brand-name"><span class="step">Step Into</span><br>INTL Law</div>
+      <p>Helping Australian students find their first step into international law — one opportunity at a time.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="#pathways">Jobs Board</a>
+        <a href="#map">Scholarships</a>
+        <a href="#mission">Our Mission</a>
+      </div>
+      <div class="footer-col">
+        <h4>Get Involved</h4>
+        <a href="#">Join the Team</a>
+        <a href="#">Submit an Opportunity</a>
+        <a href="#">Contact Us</a>
+      </div>
+    </div>
+  </div>
+  <div class="disclaimer">
+    <p>Step Into INTL Law does not guarantee job placement for anyone using its job board, nor does it guarantee that an employer will fill a vacancy by advertising on the job board.</p>
+    <p>Step Into INTL Law urges employers and applicants to perform due diligence when offering, applying for, or accepting employment by requesting from each other references or any additional information needed to establish qualifications and credentials, so as to ensure an overall fit between employer and applicant.</p>
+    <p>Step Into INTL Law makes no representation or guarantee about the accuracy of the positions posted, and is not responsible for safety, wages, or working conditions once an applicant accepts an offer of employment. Step Into INTL Law does not make recommendations regarding potential employers or employees.</p>
+    <p style="margin-top:14px;opacity:0.6;">© 2026 Step Into INTL Law. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+// ---------- Fade-in on scroll ----------
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('visible'); }
+  });
+},{threshold:0.15});
+document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
+
+// ---------- Hero: night-earth dot globe ----------
+(function(){
+  const canvas = document.getElementById('globe-canvas');
+  const ctx = canvas.getContext('2d');
+  let W,H,dpr;
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio||1,2);
+    W = canvas.offsetWidth; H = canvas.offsetHeight;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // simple lat/long dot grid approximating landmasses via a coarse mask
+  const points = [];
+  const rows = 46, cols = 92;
+  // coarse world mask (1 = land-ish, generated procedurally as bands + noise for a stylised look)
+  function landish(u,v){
+    // u:0..1 lon, v:0..1 lat  -- rough continental bands, purely decorative
+    const bands = [
+      {y:0.28,y2:0.52,x:0.02,x2:0.28}, // N America
+      {y:0.5,y2:0.78,x:0.18,x2:0.34},  // S America
+      {y:0.22,y2:0.42,x:0.42,x2:0.58}, // Europe
+      {y:0.34,y2:0.72,x:0.42,x2:0.62}, // Africa
+      {y:0.2,y2:0.55,x:0.6,x2:0.92},   // Asia
+      {y:0.62,y2:0.8,x:0.78,x2:0.94}   // Australia
+    ];
+    for(const b of bands){
+      if(v>b.y && v<b.y2 && u>b.x && u<b.x2){
+        const nx = Math.sin(u*37+v*19)*Math.cos(v*23);
+        if(nx > -0.35) return true;
+      }
+    }
+    return false;
+  }
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const u = c/cols, v = r/rows;
+      if(landish(u,v) && Math.random()>0.15){
+        points.push({u,v, tw: Math.random()*Math.PI*2, sp: 0.6+Math.random()*1.4});
+      }
+    }
+  }
+
+  let t = 0;
+  function draw(){
+    t += 0.016;
+    ctx.clearRect(0,0,W,H);
+    const marginX = W*0.06, marginY = H*0.22;
+    const spanX = W - marginX*2, spanY = H*0.62;
+    for(const p of points){
+      const x = marginX + p.u*spanX;
+      const y = marginY + p.v*spanY;
+      const flicker = 0.35 + 0.65*Math.abs(Math.sin(t*p.sp + p.tw));
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(201,162,39,${0.12+flicker*0.55})`;
+      ctx.arc(x,y,1.15,0,Math.PI*2);
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ---------- Map preview: animated pins ----------
+(function(){
+  const canvas = document.getElementById('pin-canvas');
+  const ctx = canvas.getContext('2d');
+  let W,H,dpr;
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio||1,2);
+    W = canvas.offsetWidth; H = canvas.offsetHeight;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const jobPins = [
+    {x:0.22,y:0.3,label:'2027 Graduate — CommBank'},
+    {x:0.5,y:0.22,label:'2027 Graduate — KPMG'},
+    {x:0.62,y:0.4,label:'2027 Graduate — EY'},
+    {x:0.82,y:0.68,label:'2027 Graduate — QBE'},
+    {x:0.35,y:0.6,label:'Legal Intern — UN OLA'},
+  ];
+  const scholarPins = [
+    {x:0.44,y:0.28,label:'Rhodes Scholarship — Oxford'},
+    {x:0.2,y:0.34,label:'Fulbright — United States'},
+    {x:0.58,y:0.5,label:'Chevening — UK'},
+    {x:0.8,y:0.62,label:'Endeavour — Australia'},
+    {x:0.68,y:0.24,label:'DAAD — Germany'},
+  ];
+  let mode = 'jobs';
+  let pins = jobPins;
+  let hoverIdx = -1;
+
+  document.querySelectorAll('.toggle-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.dataset.mode;
+      pins = mode==='jobs' ? jobPins : scholarPins;
+    });
+  });
+
+  canvas.addEventListener('mousemove', (e)=>{
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX-rect.left, my = e.clientY-rect.top;
+    hoverIdx = -1;
+    pins.forEach((p,i)=>{
+      const px = p.x*W, py = p.y*H;
+      if(Math.hypot(mx-px,my-(py-18))<14) hoverIdx=i;
+    });
+  });
+
+  let t=0;
+  function draw(){
+    t+=0.02;
+    ctx.clearRect(0,0,W,H);
+    // faint grid to suggest a map
+    ctx.strokeStyle = 'rgba(238,241,247,0.05)';
+    ctx.lineWidth=1;
+    for(let x=0;x<W;x+=36){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for(let y=0;y<H;y+=36){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+    pins.forEach((p,i)=>{
+      const px = p.x*W, py = p.y*H;
+      const bob = Math.sin(t*1.4+i)*2;
+      // pulse ring
+      const pulse = (t*0.7+i*0.3)%1;
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(201,162,39,${0.5-pulse*0.5})`;
+      ctx.lineWidth=1.2;
+      ctx.arc(px,py+bob,6+pulse*16,0,Math.PI*2);
+      ctx.stroke();
+
+      // pin
+      ctx.beginPath();
+      ctx.fillStyle = i===hoverIdx ? '#e0b62f' : '#c9a227';
+      ctx.arc(px,py+bob,6,0,Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.fillStyle = '#060c1e';
+      ctx.arc(px,py+bob,2.4,0,Math.PI*2);
+      ctx.fill();
+
+      if(i===hoverIdx){
+        ctx.font = "500 12px 'IBM Plex Mono', monospace";
+        const tw = ctx.measureText(p.label).width;
+        const bx = px+14, by = py+bob-30;
+        ctx.fillStyle = 'rgba(10,18,41,0.95)';
+        ctx.strokeStyle = 'rgba(201,162,39,0.5)';
+        ctx.lineWidth=1;
+        ctx.fillRect(bx-8,by-18,tw+16,26);
+        ctx.strokeRect(bx-8,by-18,tw+16,26);
+        ctx.fillStyle = '#eef1f7';
+        ctx.fillText(p.label, bx, by);
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+</body>
+</html>
