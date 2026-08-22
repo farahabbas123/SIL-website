@@ -27,16 +27,17 @@ A major priority is the development of a **Scholarships / Postgraduate Opportuni
 The main navigation should include:
 
 - **Step Into INTL Law logo**
-- **About Us**
-- **Portfolios**
-  - Careers
-  - Academic
-  - Community
-- **Jobs Board**
-- **Postgraduate Opportunities**
-- **Contact**
-- **Sign In**
-- **Join Us**
+
+| Item | Notes |
+|---|---|
+| **Step Into INTL Law logo** | Links to homepage |
+| **About Us** | Mission, values, team |
+| **Portfolios** | Dropdown with three sub-pages: **Careers · Academic · Community** |
+| **Jobs Board** | Graduate roles & internships |
+| **Postgraduate Opportunities** | Scholarships board (see §3) |
+| **Contact** | Contact form + details |
+| **Sign In** | Opens auth UI |
+| **Join Us** | CTA — links to Contact / recruitment |
 
 ---
 
@@ -117,9 +118,45 @@ Include:
 
 **Initial version:** UI only. Real authentication can be implemented later.
 
+## 7. Design System
+
+Keeping these consistent across every page keeps the site feeling like one product instead of six separate pages.
+
+| Token | Value | Use |
+|---|---|---|
+| Navy 950 | `#060c1e` | Page background |
+| Navy 900 | `#0a1229` | Section background (alt) |
+| Navy 800 | `#0e1c3f` | Card hover / panel |
+| Navy 700 | `#152a56` | Borders on dark panels |
+| Ivory | `#eef1f7` | Primary text |
+| Ivory Dim | `#b9c3d9` | Secondary/body text |
+| Gold | `#c9a227` | Accent, CTAs, "closing soon" flag |
+| Display font | Fraunces | Headings |
+| Body font | Inter | Paragraphs, UI text |
+| Mono/label font | IBM Plex Mono | Eyebrows, tags, nav labels |
+
 ---
 
-## 7. Development Priority
+## 8. File Structure
+
+The codebase keeps markup, styling, and behaviour in separate files so each can be edited independently:
+
+```text
+siil-site/
+├── index.html          — Homepage
+├── about.html           — About Us
+├── portfolios.html      — Portfolios (Careers / Academic / Community)
+├── scholarships.html    — Postgraduate Opportunities board
+├── contact.html         — Contact form
+├── signin.html          — Sign In / Create Account
+├── styles.css           — Shared design system + all page styles
+└── main.js              — Shared behaviour (nav, filters, forms, animations)
+```
+
+Every `.html` file links to `styles.css` and `main.js` via relative paths, so the folder must stay together when shared or deployed.
+---
+
+## 9. Development Priority
 
 ### Phase 1 — Core Website
 
