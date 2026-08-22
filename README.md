@@ -26,7 +26,7 @@ A major priority is the development of a **Scholarships / Postgraduate Opportuni
 
 The main navigation should include:
 
-- **Step Into INTL Law logo**
+**Step Into INTL Law logo**
 
 | Item | Notes |
 |---|---|
@@ -152,8 +152,8 @@ siil-site/
 ├── styles.css           — Shared design system + all page styles
 └── main.js              — Shared behaviour (nav, filters, forms, animations)
 ```
+- Every `.html` file links to `styles.css` and `main.js` via relative paths, so the folder must stay together when shared or deployed.
 
-Every `.html` file links to `styles.css` and `main.js` via relative paths, so the folder must stay together when shared or deployed.
 ---
 
 ## 9. Development Priority
