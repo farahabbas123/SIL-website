@@ -10,7 +10,7 @@
 
 ---
 
-# 1. Website Overview
+## 1. Website Overview
 
 The Step Into INTL Law website will provide students and graduates with access to international law-related opportunities, including scholarships, postgraduate opportunities, careers, and community resources.
 
@@ -22,7 +22,7 @@ A major priority is the development of a **Scholarships / Postgraduate Opportuni
 
 ---
 
-# 2. Website Navigation
+## 2. Website Navigation
 
 The main navigation should include:
 
