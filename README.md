@@ -24,6 +24,11 @@ A major priority is the development of a **Scholarships / Postgraduate Opportuni
 
 ## 2. Website Navigation
 
+### How to open 
+1. Download the file (zip)
+2. Click index to open the front end for the website page
+
+
 The main navigation should include:
 
 **Step Into INTL Law logo**
