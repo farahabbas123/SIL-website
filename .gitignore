@@ -1,0 +1,7 @@
+node_modules/
+backend/node_modules/
+database.db
+backend/database.db
+.DS_Store
+backend/database.db
+backend/database.db
