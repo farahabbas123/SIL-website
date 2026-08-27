@@ -1,191 +1,62 @@
-# SIL Website
+# Step Into INTL Law — Web
 
-**Step Into INTL Law (SIL) Website**
+```
+web/
+├── frontend/     Static site (HTML, CSS, JS) — served by the backend
+└── backend/      Express + SQLite API (auth, sessions, profile)
+```
 
-## Team
+The backend serves the frontend directly, so in normal use you only run **one** server.
 
-### Technology Members
-- Farah
-- Min
+## 1. Install dependencies
 
----
+```bash
+cd web/backend
+npm install
+```
 
-## 1. Website Overview
+> If `npm install` fails while building `better-sqlite3` or `bcrypt` (native modules), retry with:
+> `npm install --ignore-scripts` — both ship prebuilt binaries, so the build step usually isn't needed.
 
-The Step Into INTL Law website will provide students and graduates with access to international law-related opportunities, including scholarships, postgraduate opportunities, careers, and community resources.
+## 2. Create the test account
 
-The website should have a clean, professional design that follows the **Step Into INTL Law branding**, with **dark blue** as the primary colour.
+```bash
+npm run seed
+```
 
-A major priority is the development of a **Scholarships / Postgraduate Opportunities Board**, allowing users to browse and filter opportunities and then visit the official provider website to apply.
+Creates a sign-in-ready account:
 
-> **Important:** Users will not apply for scholarships directly through the SIL website. Scholarship applications can be complex and intensive, so each opportunity should link to the official university or organisation website.
-
----
-
-## 2. Website Navigation
-
-### How to open 
-1. Download the file (zip)
-2. Click index to open the front end for the website page
-
-
-The main navigation should include:
-
-**Step Into INTL Law logo**
-
-| Item | Notes |
+| Email | Password |
 |---|---|
-| **Step Into INTL Law logo** | Links to homepage |
-| **About Us** | Mission, values, team |
-| **Portfolios** | Dropdown with three sub-pages: **Careers · Academic · Community** |
-| **Jobs Board** | Graduate roles & internships |
-| **Postgraduate Opportunities** | Scholarships board (see §3) |
-| **Contact** | Contact form + details |
-| **Sign In** | Opens auth UI |
-| **Join Us** | CTA — links to Contact / recruitment |
+| `1@gmail.com` | `1` |
 
----
+This is a dev convenience only — the `/api/signup` form still enforces an 8-character minimum for real accounts.
 
-## 3. Postgraduate Opportunities Board
+## 3. Run the server
 
-**Priority feature**
-
-The scholarship/opportunities board should be implemented as a reusable listing system.
-
-Each opportunity should contain:
-
-- Name
-- Location / University
-- Type
-- Closing date
-- External URL
-
-### Filters
-
-Users should be able to filter by:
-
-- All
-- Undergraduate
-- Postgraduate Coursework
-- Postgraduate Research
-- Short Course / Study Tour
-- Other
-
-Each listing/card must be clickable and link to the official provider website.
-
-Upcoming closing dates should be visually highlighted using the SIL gold accent colour.
-
----
-
-## 4. Data Structure
-
-The opportunity data should use a consistent structure so that new scholarships can be added easily.
-
-Example:
-
-```text
-Opportunity
-├── name
-├── location
-├── type
-├── closingDate
-└── url
+```bash
+npm start
 ```
 
-The initial version can use static data. A database/backend can be added later.
+Open **http://localhost:3000** — this serves the frontend *and* the API from the same origin.
 
----
+## 4. Run the backend tests
 
-## 5. Contact Form
-
-Implement a front-end contact form containing:
-
-- Name
-- Email
-- Subject
-- Message
-
-After submission, display a confirmation message.
-
-**Initial version:** front-end only; no backend required.
-
----
-
-## 6. Authentication UI
-
-Create a Sign In / Create Account interface.
-
-Include:
-
-- Sign In tab
-- Create Account tab
-- Google Sign-In button as an OAuth placeholder
-
-**Initial version:** UI only. Real authentication can be implemented later.
-
-## 7. Design System
-
-Keeping these consistent across every page keeps the site feeling like one product instead of six separate pages.
-
-| Token | Value | Use |
-|---|---|---|
-| Navy 950 | `#060c1e` | Page background |
-| Navy 900 | `#0a1229` | Section background (alt) |
-| Navy 800 | `#0e1c3f` | Card hover / panel |
-| Navy 700 | `#152a56` | Borders on dark panels |
-| Ivory | `#eef1f7` | Primary text |
-| Ivory Dim | `#b9c3d9` | Secondary/body text |
-| Gold | `#c9a227` | Accent, CTAs, "closing soon" flag |
-| Display font | Fraunces | Headings |
-| Body font | Inter | Paragraphs, UI text |
-| Mono/label font | IBM Plex Mono | Eyebrows, tags, nav labels |
-
----
-
-## 8. File Structure
-
-The codebase keeps markup, styling, and behaviour in separate files so each can be edited independently:
-
-```text
-siil-site/
-├── index.html          — Homepage
-├── about.html           — About Us
-├── portfolios.html      — Portfolios (Careers / Academic / Community)
-├── scholarships.html    — Postgraduate Opportunities board
-├── contact.html         — Contact form
-├── signin.html          — Sign In / Create Account
-├── styles.css           — Shared design system + all page styles
-└── main.js              — Shared behaviour (nav, filters, forms, animations)
+```bash
+npm test
 ```
-- Every `.html` file links to `styles.css` and `main.js` via relative paths, so the folder must stay together when shared or deployed.
 
----
+Runs an 18-test Jest + Supertest suite against an isolated in-memory database (`tests/auth.test.js`), covering signup, login, logout, profile fetch/update, and password change — including the failure cases (wrong password, duplicate email, short password, unauthenticated requests).
 
-## 9. Development Priority
+## How sign-in connects to the frontend
 
-### Phase 1 — Core Website
+1. `signin.html` posts to `/api/signup` or `/api/login`. On success the server starts a cookie session and the page redirects to `profile.html`.
+2. `profile.html` calls `GET /api/profile` on load. If there's no valid session, it redirects back to `signin.html`.
+3. From the profile page, users can update their name/email (`PUT /api/profile`) or change their password (`PUT /api/profile/password`), and sign out (`POST /api/logout`).
+4. Every other page checks `/api/profile` in the background and swaps the nav's "Sign In" link for the user's first name when a session is active.
 
-1. Responsive website structure
-2. Navigation and routing
-3. Homepage
-4. About Us
-5. Portfolio pages
-6. Jobs Board
-7. **Postgraduate Opportunities Board**
-8. Filtering functionality
-9. External opportunity links
-10. Contact form
-11. Sign In / Create Account UI
+## Notes / next steps
 
-### Phase 2 — Future Development
-
-1. Backend/database
-2. Admin management system
-3. Authentication
-4. Opportunity submission
-5. Advanced filtering
-6. Maps
-7. OAuth
-8. Additional scholarship resources
-
----
+- Sessions currently use Express's default in-memory store — fine for development, but swap in a persistent store (e.g. `connect-sqlite3`, Redis) before deploying, since restarting the server logs everyone out.
+- Set a real `SESSION_SECRET` environment variable in production instead of the fallback in `app.js`.
+- `database.db` is created automatically in `web/backend/` on first run.

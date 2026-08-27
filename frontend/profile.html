@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Profile — Step Into INTL Law</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <a class="brand" href="index.html">
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="19" stroke="#eef1f7" stroke-width="1.4"/>
+      <path d="M6 20c6 3 10 3 16-1s12-4 20 0" stroke="#eef1f7" stroke-width="1" opacity="0.55"/>
+      <path d="M9 30c7-3 13 1 19-2s10-4 16-1" stroke="#eef1f7" stroke-width="1" opacity="0.4"/>
+      <path d="M12 12l4 5 4-3 4 6 5-2" stroke="#c9a227" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div class="brand-name"><span class="step">Step Into</span><br>INTL Law</div>
+  </a>
+  <nav class="primary-nav">
+    <ul>
+      <li><a href="about.html">About Us</a></li>
+      <li class="has-dropdown">
+        <a href="portfolios.html">Portfolios</a>
+        <div class="dropdown-panel">
+          <a href="portfolios.html#careers">Careers Portfolio</a>
+          <a href="portfolios.html#academic">Academic Portfolio</a>
+          <a href="portfolios.html#community">Community Portfolio</a>
+        </div>
+      </li>
+      <li><a href="index.html#pathways">Jobs Board</a></li>
+      <li><a href="scholarships.html">Postgraduate Opportunities</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+  <div class="nav-actions">
+    <span class="btn-ghost" id="nav-user-name" style="color:var(--gold);cursor:default;">Account</span>
+    <button class="btn btn-secondary btn-sm" id="signout-btn" type="button">Sign out</button>
+    <button class="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <span class="breadcrumb"><a href="index.html">Home</a> / Profile</span>
+    <span class="eyebrow">Account</span>
+    <h1>Your profile</h1>
+    <p>Update your details or change your password below. Changes are saved immediately.</p>
+  </div>
+</section>
+
+<section>
+  <p id="profile-loading" class="form-note">Loading your profile…</p>
+
+  <div id="profile-content" style="display:none;">
+
+    <div class="form-card fade-in visible" style="max-width:640px;margin-bottom:32px;display:flex;gap:20px;align-items:center;">
+      <div id="profile-avatar" class="team-avatar" style="width:64px;height:64px;margin:0;font-size:1.4rem;border-radius:50%;flex-shrink:0;">–</div>
+      <div>
+        <h3 id="profile-display-name" style="font-family:'Fraunces',serif;font-weight:600;font-size:1.2rem;color:var(--ivory);">—</h3>
+        <p id="profile-display-email" style="color:var(--ivory-dim);font-size:0.9rem;margin-top:2px;">—</p>
+      </div>
+    </div>
+
+    <div class="form-card fade-in visible" style="max-width:640px;margin-bottom:32px;">
+      <h3 style="font-family:'Fraunces',serif;font-weight:500;font-size:1.2rem;color:var(--ivory);margin-bottom:20px;">Profile details</h3>
+      <div id="details-error" class="form-success" style="border-color:rgba(220,90,90,0.4);background:rgba(220,90,90,0.08);color:#e08a8a;"></div>
+      <div id="details-success" class="form-success">Profile updated.</div>
+      <form id="details-form">
+        <div class="form-row">
+          <div class="field full">
+            <label for="pd-name">Full name</label>
+            <input id="pd-name" type="text" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field full">
+            <label for="pd-email">Email</label>
+            <input id="pd-email" type="email" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </form>
+    </div>
+
+    <div class="form-card fade-in visible" style="max-width:640px;">
+      <h3 style="font-family:'Fraunces',serif;font-weight:500;font-size:1.2rem;color:var(--ivory);margin-bottom:20px;">Change password</h3>
+      <div id="password-error" class="form-success" style="border-color:rgba(220,90,90,0.4);background:rgba(220,90,90,0.08);color:#e08a8a;"></div>
+      <div id="password-success" class="form-success">Password updated.</div>
+      <form id="password-form">
+        <div class="form-row">
+          <div class="field full">
+            <label for="pw-current">Current password</label>
+            <input id="pw-current" type="password" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="pw-new">New password</label>
+            <input id="pw-new" type="password" minlength="8" required>
+          </div>
+          <div class="field">
+            <label for="pw-confirm">Confirm new password</label>
+            <input id="pw-confirm" type="password" minlength="8" required>
+          </div>
+        </div>
+        <p class="form-note" style="margin:-4px 0 16px;">Must be at least 8 characters.</p>
+        <button type="submit" class="btn btn-primary">Update password</button>
+      </form>
+    </div>
+
+    <div class="form-card fade-in visible" style="max-width:640px;margin-top:32px;border-color:rgba(220,90,90,0.35);">
+      <h3 style="font-family:'Fraunces',serif;font-weight:500;font-size:1.2rem;color:#e08a8a;margin-bottom:8px;">Danger zone</h3>
+      <p class="form-note" style="margin-bottom:18px;">Permanently delete your account and all associated data. This can't be undone.</p>
+      <button type="button" id="delete-account-btn" class="btn btn-secondary" style="border-color:rgba(220,90,90,0.4);color:#e08a8a;">Delete account</button>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="brand-name"><span class="step">Step Into</span><br>INTL Law</div>
+      <p>Helping Australian students find their first step into international law — one opportunity at a time.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="index.html#pathways">Jobs Board</a>
+        <a href="scholarships.html">Scholarships</a>
+        <a href="portfolios.html">Portfolios</a>
+      </div>
+      <div class="footer-col">
+        <h4>Organisation</h4>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Contact</a>
+        <a href="signin.html">Sign In</a>
+      </div>
+    </div>
+  </div>
+  <div class="disclaimer">
+    <p>Step Into INTL Law does not guarantee job placement for anyone using its job board, nor does it guarantee that an employer will fill a vacancy by advertising on the job board.</p>
+    <p style="margin-top:14px;opacity:0.6;">© 2026 Step Into INTL Law. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+<script src="profile.js"></script>
+</body>
+</html>

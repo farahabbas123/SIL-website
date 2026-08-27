@@ -1,6 +1,11 @@
+const path = require('path');
 const Database = require('better-sqlite3');
 
-const db = new Database('database.db');
+// Allows tests to point at an isolated database (e.g. ":memory:")
+// without touching the real database.db file used in development.
+const dbFile = process.env.DB_FILE || path.join(__dirname, 'database.db');
+
+const db = new Database(dbFile);
 
 db.prepare(`
     CREATE TABLE IF NOT EXISTS users (
@@ -11,6 +16,8 @@ db.prepare(`
     )
 `).run();
 
-console.log('Database connected.');
+if (process.env.NODE_ENV !== 'test') {
+    console.log(`Database connected (${dbFile}).`);
+}
 
 module.exports = db;
