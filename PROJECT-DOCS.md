@@ -8,7 +8,7 @@
 | **Team** | Farah, Min *(Technology)* |
 | **Last updated** | 2026 |
 
-This document combines everything previously split across `SIL-Website-Spec.md`, `web/README.md` and the backend goals brief into a single reference.
+This document combines everything previously split across `SIL-Website-Spec.md`, the per-area READMEs and the backend goals brief into a single reference. Shorter task-focused docs live in [`README.md`](README.md), [`backend/README.md`](backend/README.md), and [`frontend/README.md`](frontend/README.md).
 
 ---
 
@@ -65,7 +65,7 @@ The original brief for the backend, with current implementation status against e
 
 | Task | Status |
 |---|---|
-| Create the backend project structure | ✅ `web/backend/` — `app.js`, `server.js`, `database.js`, `seed.js`, `tests/` |
+| Create the backend project structure | ✅ `backend/` — `app.js`, `server.js`, `database.js`, `seed.js`, `tests/` |
 | Set up the server using a framework | ✅ Node.js + Express |
 | Configure environment variables and server settings | ✅ `dotenv` loads a `.env` file (`.env.example` provided) for `PORT`, `SESSION_SECRET`, `DB_FILE`, `NODE_ENV` |
 
@@ -235,9 +235,12 @@ Keeping these consistent across every page keeps the site feeling like one produ
 ## 9. Project Structure
 
 ```text
-web/
+SIL-website/
+├── README.md                — quickstart + doc map
 ├── PROJECT-DOCS.md          — this file
+├── SIL-Website-Spec.md      — original website specification
 ├── frontend/
+│   ├── README.md             Frontend guide (pages, JS, API calls)
 │   ├── index.html            Homepage
 │   ├── about.html            About Us
 │   ├── portfolios.html       Portfolios (Careers / Academic / Community)
@@ -250,6 +253,7 @@ web/
 │   ├── signin.js              Sign in / sign up API calls
 │   └── profile.js             Profile page API calls
 └── backend/
+    ├── README.md              Backend guide (setup, API, troubleshooting)
     ├── app.js                 Express app + all routes
     ├── server.js               Loads .env and starts the server
     ├── database.js              SQLite connection + schema
@@ -267,15 +271,16 @@ Every `.html` file links to `styles.css` and its JS via relative paths, so the `
 
 ## 10. Running the Project
 
+**Requires Node.js 22 LTS or newer** — `better-sqlite3@13` declares `engines.node >= 22` and neither builds nor runs on older Node.
+
 ### Install dependencies
 
 ```bash
-cd web/backend
+cd backend
 npm install
 ```
 
-> If `npm install` fails while building `better-sqlite3` or `bcrypt` (native modules), retry with:
-> `npm install --ignore-scripts` — both ship prebuilt binaries, so the build step usually isn't needed.
+> Install failing? Most causes (wrong Node version, a broken global `npm`, native-build errors) are covered in the Troubleshooting section of [`backend/README.md`](backend/README.md#troubleshooting).
 
 ### Configure environment variables
 
@@ -362,5 +367,5 @@ Runs a 21-test Jest + Supertest suite against an isolated in-memory database (`t
 
 - **Sessions** currently use Express's default in-memory store — fine for development, but swap in a persistent store (e.g. `connect-sqlite3`, Redis) before deploying, since restarting the server logs everyone out.
 - Set a real, unique `SESSION_SECRET` in `.env` before deploying anywhere public — never reuse the example value.
-- `database.db` is created automatically in `web/backend/` on first run; it's git-ignored, so each environment starts fresh unless you run `npm run seed` again.
+- `database.db` is created automatically in `backend/` on first run; it's git-ignored, so each environment starts fresh unless you run `npm run seed` again.
 - The Postgraduate Opportunities board and Contact form are the two remaining pieces of the frontend still using static/front-end-only data — natural next targets now that the auth backend pattern (routes → tests → frontend fetch calls) is established.

@@ -1,62 +1,41 @@
-# Step Into INTL Law — Web
+# Step Into INTL Law — Website
+
+A single place for students and graduates to find international-law opportunities — scholarships, postgraduate study, careers, and community resources.
 
 ```
-web/
+SIL-website/
 ├── frontend/     Static site (HTML, CSS, JS) — served by the backend
-└── backend/      Express + SQLite API (auth, sessions, profile)
+├── backend/      Express + SQLite API (auth, sessions, profile)
+├── PROJECT-DOCS.md      Full spec + implementation status (single source of truth)
+└── SIL-Website-Spec.md  Original website specification
 ```
 
-The backend serves the frontend directly, so in normal use you only run **one** server.
+The backend serves the frontend directly, so in normal use you run **one** server and open one URL.
 
-## 1. Install dependencies
+## Quickstart
+
+Requires **Node.js 22 LTS or newer** (`node -v`) — `better-sqlite3` won't build or run on older Node. See [backend/README.md](backend/README.md#requirements).
 
 ```bash
-cd web/backend
+cd backend
 npm install
-```
-
-> If `npm install` fails while building `better-sqlite3` or `bcrypt` (native modules), retry with:
-> `npm install --ignore-scripts` — both ship prebuilt binaries, so the build step usually isn't needed.
-
-## 2. Create the test account
-
-```bash
-npm run seed
-```
-
-Creates a sign-in-ready account:
-
-| Email | Password |
-|---|---|
-| `1@gmail.com` | `1` |
-
-This is a dev convenience only — the `/api/signup` form still enforces an 8-character minimum for real accounts.
-
-## 3. Run the server
-
-```bash
+cp .env.example .env
+npm run seed        # creates a test login: 1@gmail.com / 1
 npm start
 ```
 
-Open **http://localhost:3000** — this serves the frontend *and* the API from the same origin.
+Then open **http://localhost:3000** — this serves the site *and* the API from the same origin.
 
-## 4. Run the backend tests
+> Opening the `.html` files directly from `frontend/` (`file://`) will load the pages but **auth won't work** — the sign-in, profile, and nav all make `fetch` calls that need the same-origin server. Always go through `http://localhost:3000`.
 
-```bash
-npm test
-```
+## Per-area docs
 
-Runs an 18-test Jest + Supertest suite against an isolated in-memory database (`tests/auth.test.js`), covering signup, login, logout, profile fetch/update, and password change — including the failure cases (wrong password, duplicate email, short password, unauthenticated requests).
+| Doc | Covers |
+|---|---|
+| [backend/README.md](backend/README.md) | Install, env vars, seed, run, tests, the REST API, DB schema, **troubleshooting** |
+| [frontend/README.md](frontend/README.md) | Pages, the JS files, how each page talks to the API, design tokens |
+| [PROJECT-DOCS.md](PROJECT-DOCS.md) | Everything: overview, navigation, backend goals + status, data structures, dev priority |
 
-## How sign-in connects to the frontend
+## Status
 
-1. `signin.html` posts to `/api/signup` or `/api/login`. On success the server starts a cookie session and the page redirects to `profile.html`.
-2. `profile.html` calls `GET /api/profile` on load. If there's no valid session, it redirects back to `signin.html`.
-3. From the profile page, users can update their name/email (`PUT /api/profile`) or change their password (`PUT /api/profile/password`), and sign out (`POST /api/logout`).
-4. Every other page checks `/api/profile` in the background and swaps the nav's "Sign In" link for the user's first name when a session is active.
-
-## Notes / next steps
-
-- Sessions currently use Express's default in-memory store — fine for development, but swap in a persistent store (e.g. `connect-sqlite3`, Redis) before deploying, since restarting the server logs everyone out.
-- Set a real `SESSION_SECRET` environment variable in production instead of the fallback in `app.js`.
-- `database.db` is created automatically in `web/backend/` on first run.
+Phase 1 — core site + auth backend built. Sign in / create account / profile / password change / delete account are wired to a real API. The Postgraduate Opportunities board and Contact form are still front-end-only (static data) — see [PROJECT-DOCS.md §13](PROJECT-DOCS.md).
