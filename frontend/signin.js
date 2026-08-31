@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('si-pass').value;
 
       try {
-        const res = await fetch('/api/login', {
+        const res = await fetch('/api/v1/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (!res.ok) {
-          showError(data.error || 'Could not sign in.');
+          showError((data.error && data.error.message) || 'Could not sign in.');
           return;
         }
 
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('su-pass').value;
 
       try {
-        const res = await fetch('/api/signup', {
+        const res = await fetch('/api/v1/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (!res.ok) {
-          showError(data.error || 'Could not create your account.');
+          showError((data.error && data.error.message) || 'Could not create your account.');
           return;
         }
 
@@ -114,10 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---------- Already signed in? Skip straight to the profile ----------
-  fetch('/api/profile', { credentials: 'same-origin' })
+  fetch('/api/v1/users/me', { credentials: 'same-origin' })
     .then(res => (res.ok ? res.json() : null))
-    .then(data => {
-      if (data && data.user) {
+    .then(body => {
+      if (body && body.data && body.data.user) {
         window.location.href = 'profile.html';
       }
     })

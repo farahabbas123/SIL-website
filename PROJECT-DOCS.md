@@ -65,48 +65,58 @@ The original brief for the backend, with current implementation status against e
 
 | Task | Status |
 |---|---|
-| Create the backend project structure | ✅ `backend/` — `app.js`, `server.js`, `database.js`, `seed.js`, `tests/` |
-| Set up the server using a framework | ✅ Node.js + Express |
-| Configure environment variables and server settings | ✅ `dotenv` loads a `.env` file (`.env.example` provided) for `PORT`, `SESSION_SECRET`, `DB_FILE`, `NODE_ENV` |
+| Create the backend project structure | ✅ Layered — `src/{config,db,lib,middleware,routes,modules}` (route → controller → service → repository → DB). Full tree + rationale in [`backend/README.md`](backend/README.md). |
+| Set up the server using a framework | ✅ Node.js + Express 5 |
+| Configure environment variables and server settings | ✅ `src/config/index.js` centralises every setting; `dotenv` loads `.env` (`.env.example` provided) |
 
-`server.js` is intentionally thin — it just loads environment variables and starts listening. All routes live in `app.js` so the app can be imported directly into tests without opening a real port.
+`server.js` is thin — load `.env`, run pending migrations, listen. All wiring lives in `src/app.js`, imported directly by tests so no port is opened. Root `app.js` / `database.js` / `seed.js` remain as one-line shims for backward compatibility.
 
 ### 3.2 Create the API
 
-REST endpoints for the frontend, returning consistent JSON (`{ message }`, `{ error }`, or `{ user }` / `{ user, message }` shapes throughout).
+Versioned under **`/api/v1`** (unversioned `/api` is an alias). Every response uses one envelope:
 
-| Method | Endpoint | Auth required | Purpose |
+```jsonc
+{ "success": true,  "data": { … }, "message"?: "…", "meta"?: { … } }
+{ "success": false, "error": { "code": "…", "message": "…", "details"?: [ … ] } }
+```
+
+| Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| `GET` | `/api/test` | No | Health check |
-| `POST` | `/api/signup` | No | Create an account (also signs the user in) |
-| `POST` | `/api/login` | No | Sign in |
-| `POST` | `/api/logout` | Yes | End the session |
-| `GET` | `/api/profile` | Yes | Fetch the signed-in user's own record |
-| `PUT` / `PATCH` | `/api/profile` | Yes | Update name / email (both methods share one handler) |
-| `PUT` | `/api/profile/password` | Yes | Change password (requires current password) |
-| `DELETE` | `/api/profile` | Yes | Delete the account and end the session |
+| `GET` | `/api/v1/health` · `/api/v1/test` | No | Health checks |
+| `POST` | `/api/v1/auth/register` | No | Create an account (also signs in) |
+| `POST` | `/api/v1/auth/login` · `/logout` | No · session | Start / end a session |
+| `POST` | `/api/v1/auth/password-reset` (+ `/confirm`) | No | Request a reset token, then set a new password |
+| `POST` | `/api/v1/auth/verify-email` (+ `/confirm`) | session · No | Request an email-verification token, then confirm |
+| `GET`/`PUT`/`PATCH`/`DELETE` | `/api/v1/users/me` | session | Fetch / update / delete own account |
+| `PUT` | `/api/v1/users/me/password` | session | Change password (requires current password) |
+| `GET` | `/api/v1/users` · `/users/:id` | admin | List / view users |
+| `PATCH` | `/api/v1/users/:id/role` | admin | Set a user's role |
+| `GET` | `/api/v1/opportunities` (+ `/:id`) | No | Public board; filters `?type=`, `?soon=true` |
+| `POST`/`PUT`/`PATCH`/`DELETE` | `/api/v1/opportunities` (+ `/:id`) | admin | Manage listings |
 
-All of `GET`, `POST`, `PUT`, `PATCH`, and `DELETE` are implemented and covered by tests.
+All of `GET`, `POST`, `PUT`, `PATCH`, `DELETE` are implemented and covered by the test suites (`tests/auth.test.js`, `tests/opportunities.test.js`, `tests/users.admin.test.js` — 42 tests).
 
 ### 3.3 Database integration
 
 | Task | Status |
 |---|---|
-| Choose and configure a database | ✅ SQLite via `better-sqlite3` (file-based, zero external services) |
-| Design the required tables | ✅ `users` table — see §5 |
-| Connect the backend to the database | ✅ `database.js`, configurable via `DB_FILE` |
-| Implement CRUD operations | ✅ **Create** (signup), **Read** (profile fetch, login lookup), **Update** (profile edit, password change), **Delete** (account deletion) |
+| Choose and configure a database | ✅ SQLite via `better-sqlite3` (file-based, zero external services). Only the repository layer touches it, so a swap stays localised. |
+| Design the tables | ✅ `users`, `opportunities`, `user_tokens`, `_migrations` — see §5 |
+| Connect the backend to the database | ✅ `src/db/connection.js` (WAL + foreign keys on), configurable via `DB_FILE` |
+| Migrations | ✅ `src/db/migrate.js` applies ordered `src/db/migrations/*.sql`; runs on `npm start` and `npm run migrate` |
+| Seed / test data | ✅ `npm run seed` — idempotent test user, admin user, and ~6 sample opportunities |
+| Implement CRUD operations | ✅ Users (register / fetch / update / password / delete) and Opportunities (list / get / create / update / delete), each split repository → service → controller |
 
 ### 3.4 Connect frontend → backend
 
 | Task | Status |
 |---|---|
-| Replace hard-coded/mock data with real API requests | ✅ Sign in, sign up, and profile pages call the real API; site nav checks `/api/profile` on load |
+| Replace hard-coded/mock data with real API requests | ✅ Sign in, sign up, and profile pages call `/api/v1/*`; site nav checks `/api/v1/users/me` on load |
 | Send user input from forms to the backend | ✅ Sign up, sign in, profile edit, password change, delete account |
-| Display backend responses on the frontend | ✅ Profile details, error messages, success confirmations |
-| Handle loading and error states | ✅ "Loading your profile…" state, inline error banners, disabled/"Please wait…" buttons during submission |
+| Display backend responses on the frontend | ✅ Profile details, error messages (`error.message`), success confirmations |
+| Handle loading and error states | ✅ "Loading your profile…" state, inline error banners, disabled/"Please wait…" buttons |
 
-**Not yet connected to the backend:** the Contact form (§6) and the Postgraduate Opportunities board (§4) still use front-end-only logic / static data — see [§13 Notes / Next Steps](#13-notes--next-steps).
+**Not yet connected to the backend:** the Contact form (§6) and the Postgraduate Opportunities board (§4). The board's `GET /api/v1/opportunities` endpoint now exists and is seeded — wiring `scholarships.html` to it (replacing the static rows) is the next step. See [§13](#13-notes--next-steps).
 
 ---
 
@@ -148,29 +158,40 @@ Currently the board reads from a static list in `scholarships.html`. Swapping th
 
 ## 5. Data Structure
 
-### Opportunities (frontend — currently static)
+Schema is defined by ordered migrations in `backend/src/db/migrations/`. Full column list in [`backend/README.md`](backend/README.md#database-schema).
+
+### opportunities (backend — implemented)
 
 ```text
-Opportunity
-├── name          — string
-├── location      — string
-├── type          — enum (undergraduate | postgrad-coursework | postgrad-research | short-course | other)
-├── closingDate   — string (display) or ISO date (for sorting/soon-flag logic)
-└── url           — string (absolute URL)
+opportunities
+├── id           — INTEGER pk
+├── name         — TEXT
+├── location     — TEXT
+├── type         — TEXT, CHECK in (undergraduate | postgrad-coursework | postgrad-research | short-course | other)
+├── closing_date — TEXT, ISO 'YYYY-MM-DD', nullable (rolling intake)
+├── url          — TEXT, official provider page
+├── created_by   — INTEGER, FK → users(id) ON DELETE SET NULL
+├── created_at / updated_at — TEXT
 ```
 
-**v1:** static data (hard-coded in `scholarships.html`).
-**v2:** move into the database and serve via a `GET /api/opportunities` endpoint (see §13).
+`closingSoon` is **computed** by the API (within `SOON_THRESHOLD_DAYS`, default 30) — not stored. The frontend board still renders a static list in `scholarships.html`; pointing it at `GET /api/v1/opportunities` is the next step.
 
-### Users (backend — implemented)
+### users (backend — implemented)
 
 ```text
 users
-├── id             — INTEGER, primary key, autoincrement
-├── name           — TEXT, required
-├── email          — TEXT, required, unique
-└── password_hash  — TEXT, required (bcrypt, 12 rounds — never stored or returned in plain text)
+├── id             — INTEGER pk
+├── name           — TEXT
+├── email          — TEXT, unique
+├── password_hash  — TEXT (bcrypt — never stored or returned in plain text)
+├── role           — TEXT, 'user' | 'admin' (default 'user')
+├── email_verified — INTEGER, 0 | 1
+└── created_at / updated_at — TEXT
 ```
+
+### user_tokens (backend — implemented)
+
+Single-use, expiring tokens for password reset and email verification. Only the SHA-256 hash of each token is stored.
 
 ---
 
@@ -253,16 +274,22 @@ SIL-website/
 │   ├── signin.js              Sign in / sign up API calls
 │   └── profile.js             Profile page API calls
 └── backend/
-    ├── README.md              Backend guide (setup, API, troubleshooting)
-    ├── app.js                 Express app + all routes
-    ├── server.js               Loads .env and starts the server
-    ├── database.js              SQLite connection + schema
-    ├── seed.js                   Creates the test account
-    ├── package.json
-    ├── package-lock.json
-    ├── .env.example
-    └── tests/
-        └── auth.test.js         21-test Jest + Supertest suite
+    ├── README.md              Backend guide (architecture, API, schema, troubleshooting)
+    ├── server.js              Entry: load .env → run migrations → listen
+    ├── app.js / database.js / seed.js   thin back-compat shims → src/
+    ├── src/
+    │   ├── app.js             Express assembly (middleware → routes → 404 → errors)
+    │   ├── config/            All env-derived settings
+    │   ├── db/                connection, migrate.js, migrations/*.sql, seed.js
+    │   ├── lib/               ApiError, response envelope, asyncHandler, mailer
+    │   ├── middleware/        cors, requestLogger, requireAuth, requireRole, validate, errorHandler
+    │   ├── routes/            v1 router (mounts modules + /health)
+    │   └── modules/
+    │       ├── auth/          register / login / logout / password-reset / verify-email
+    │       ├── users/         /me self-service + admin management  (model·repo·service·controller)
+    │       └── opportunities/ public board + admin CRUD           (model·repo·service·controller)
+    ├── package.json / package-lock.json / .env.example
+    └── tests/                 auth · opportunities · users.admin  (42 tests)
 ```
 
 Every `.html` file links to `styles.css` and its JS via relative paths, so the `frontend/` folder must stay together. The backend serves `frontend/` directly, so in normal use only one server needs to run.
@@ -271,16 +298,14 @@ Every `.html` file links to `styles.css` and its JS via relative paths, so the `
 
 ## 10. Running the Project
 
-**Requires Node.js 22 LTS or newer** — `better-sqlite3@13` declares `engines.node >= 22` and neither builds nor runs on older Node.
-
-### Install dependencies
+**Requires Node.js 22 LTS or newer** (Node 24 recommended). `better-sqlite3@13` bundles N-API prebuilt binaries, so no compiler is needed — but `npm install` still runs an implicit `node-gyp` build that fails without a C++ toolchain. On Windows, install with:
 
 ```bash
 cd backend
-npm install
+npm install --ignore-scripts
 ```
 
-> Install failing? Most causes (wrong Node version, a broken global `npm`, native-build errors) are covered in the Troubleshooting section of [`backend/README.md`](backend/README.md#troubleshooting).
+`--ignore-scripts` skips that build; the bundled prebuilt (and `bcrypt`'s) load fine at runtime. Other install failures (broken global `npm`, wrong Node version) are covered in [`backend/README.md`](backend/README.md#troubleshooting).
 
 ### Configure environment variables
 
@@ -288,21 +313,22 @@ npm install
 cp .env.example .env
 ```
 
-Defaults work fine for local development — adjust `SESSION_SECRET` before deploying anywhere real.
+Defaults work for local development — adjust `SESSION_SECRET` before deploying. Full variable list in `.env.example`.
 
-### Create the test account
+### Seed the database
 
 ```bash
 npm run seed
 ```
 
-Creates a sign-in-ready account:
+Idempotent. Creates:
 
-| Email | Password |
-|---|---|
-| `1@gmail.com` | `1` |
+| Email | Password | Role |
+|---|---|---|
+| `1@gmail.com` | `1` | user |
+| `admin@sil.test` | `admin1234` | admin |
 
-This is a dev convenience only — the `/api/signup` form still enforces an 8-character minimum for real accounts.
+…plus ~6 sample opportunities. Dev convenience only — `/api/v1/auth/register` still enforces an 8-character minimum.
 
 ### Run the server
 
@@ -310,24 +336,25 @@ This is a dev convenience only — the `/api/signup` form still enforces an 8-ch
 npm start
 ```
 
-Open **http://localhost:3000** — this serves the frontend *and* the API from the same origin.
+Applies any pending migrations, then serves the frontend *and* the API at **http://localhost:3000** from the same origin. (`npm run dev` adds `--watch`.)
 
-### Run the backend tests
+### Run the tests
 
 ```bash
 npm test
 ```
 
-Runs a 21-test Jest + Supertest suite against an isolated in-memory database (`tests/auth.test.js`), covering signup, login, logout, profile fetch/update (`PUT` and `PATCH`), password change, and account deletion — including failure cases (wrong password, duplicate email, short password, unauthenticated requests).
+42 Jest + Supertest tests across `tests/auth.test.js`, `tests/opportunities.test.js`, and `tests/users.admin.test.js`, each against a fresh in-memory database — covering register/login/logout, the profile lifecycle (`PUT`/`PATCH`/`DELETE`), password change, password reset, opportunity CRUD with `type`/`soon` filters, role enforcement (`401`/`403`), and the standard error envelope.
 
 ---
 
 ## 11. How Sign-In Connects to the Frontend
 
-1. `signin.html` posts to `/api/signup` or `/api/login`. On success the server starts a cookie session and the page redirects to `profile.html`.
-2. `profile.html` calls `GET /api/profile` on load. If there's no valid session, it redirects back to `signin.html`.
-3. From the profile page, users can update their name/email (`PUT`/`PATCH /api/profile`), change their password (`PUT /api/profile/password`), delete their account (`DELETE /api/profile`), or sign out (`POST /api/logout`).
-4. Every other page checks `/api/profile` in the background and swaps the nav's "Sign In" link for the user's first name when a session is active.
+1. `signin.html` posts to `/api/v1/auth/register` or `/api/v1/auth/login`. On success the server starts a cookie session and the page redirects to `profile.html`.
+2. `profile.html` calls `GET /api/v1/users/me` on load. If there's no valid session, it redirects back to `signin.html`.
+3. From the profile page, users can update their name/email (`PUT`/`PATCH /api/v1/users/me`), change their password (`PUT /api/v1/users/me/password`), delete their account (`DELETE /api/v1/users/me`), or sign out (`POST /api/v1/auth/logout`).
+4. Every other page checks `/api/v1/users/me` in the background and swaps the nav's "Sign In" link for the user's first name when a session is active.
+5. Responses follow the standard envelope, so the frontend reads `body.data.user` on success and `body.error.message` on failure.
 
 ---
 

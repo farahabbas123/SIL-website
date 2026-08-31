@@ -214,11 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Runs on every page; fails silently if the backend isn't running.
   const signInLink = document.querySelector('.nav-actions a.btn-ghost[href="signin.html"]');
   if (signInLink) {
-    fetch('/api/profile', { credentials: 'same-origin' })
+    fetch('/api/v1/users/me', { credentials: 'same-origin' })
       .then(res => (res.ok ? res.json() : null))
-      .then(data => {
-        if (data && data.user) {
-          signInLink.textContent = data.user.name.split(' ')[0] || 'Profile';
+      .then(body => {
+        const user = body && body.data && body.data.user;
+        if (user) {
+          signInLink.textContent = user.name.split(' ')[0] || 'Profile';
           signInLink.href = 'profile.html';
         }
       })

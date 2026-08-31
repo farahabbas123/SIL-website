@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---------- Load current profile ----------
-  fetch('/api/profile', { credentials: 'same-origin' })
+  fetch('/api/v1/users/me', { credentials: 'same-origin' })
     .then(res => {
       if (res.status === 401) {
         window.location.href = 'signin.html';
@@ -41,9 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       return res.json();
     })
-    .then(data => {
-      if (!data) return;
-      renderUser(data.user);
+    .then(body => {
+      if (!body) return;
+      renderUser(body.data.user);
       loadingEl.style.display = 'none';
       contentEl.style.display = 'block';
     })
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = document.getElementById('pd-email').value.trim();
 
     try {
-      const res = await fetch('/api/profile', {
+      const res = await fetch('/api/v1/users/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
@@ -70,11 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (!res.ok) {
-        showBanner('details-error', data.error || 'Could not update your profile.');
+        showBanner('details-error', (data.error && data.error.message) || 'Could not update your profile.');
         return;
       }
 
-      renderUser(data.user);
+      renderUser(data.data.user);
       showBanner('details-success', 'Profile updated.');
 
     } catch (err) {
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const res = await fetch('/api/profile/password', {
+      const res = await fetch('/api/v1/users/me/password', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (!res.ok) {
-        showBanner('password-error', data.error || 'Could not update your password.');
+        showBanner('password-error', (data.error && data.error.message) || 'Could not update your password.');
         return;
       }
 
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const signOutBtn = document.getElementById('signout-btn');
   signOutBtn.addEventListener('click', async () => {
     try {
-      await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+      await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
     } catch (err) {
       // ignore — redirect regardless
     }
@@ -137,10 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!confirmed) return;
 
     try {
-      const res = await fetch('/api/profile', { method: 'DELETE', credentials: 'same-origin' });
+      const res = await fetch('/api/v1/users/me', { method: 'DELETE', credentials: 'same-origin' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(data.error || 'Could not delete your account.');
+        alert((data.error && data.error.message) || 'Could not delete your account.');
         return;
       }
       window.location.href = 'signin.html';
