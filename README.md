@@ -12,6 +12,18 @@ SIL-website/
 
 The backend serves the frontend directly, so in normal use you run **one** server and open one URL.
 
+## Overview Frontend
+
+### Main page
+<img width="2234" height="1265" alt="image" src="https://github.com/user-attachments/assets/7f1c55a1-52e3-4ddf-a0f0-2a6e610f1857" />
+
+### About us
+<img width="2256" height="1267" alt="image" src="https://github.com/user-attachments/assets/1404ab77-be59-4eeb-88d8-3864d02a7202" />
+
+### Sign/Login in
+<img width="2254" height="1282" alt="image" src="https://github.com/user-attachments/assets/31c7c804-1fbf-44a6-a90b-7ad2136a468b" />
+
+
 ## Quickstart
 
 Requires **Node.js 22 LTS or newer** (24 recommended). See [backend/README.md](backend/README.md#requirements).
