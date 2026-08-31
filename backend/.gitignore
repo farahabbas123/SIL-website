@@ -1,3 +1,8 @@
 node_modules/
-database.db
 .env
+
+# SQLite database + WAL sidecar files
+database.db
+database.db-wal
+database.db-shm
+database.db-journal

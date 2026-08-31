@@ -1,12 +1,26 @@
-// Loads variables from a .env file (if present) into process.env
-// before anything else runs. Safe to keep even without a .env file —
-// it just no-ops if the file doesn't exist.
+// ============================================================
+// Entry point: load env -> apply migrations -> start listening.
+// All app wiring lives in src/app.js.
+// ============================================================
+
 require('dotenv').config();
 
-const app = require('./app');
+const app = require('./src/app');
+const config = require('./src/config');
+const { runMigrations } = require('./src/db/migrate');
 
-const PORT = process.env.PORT || 3000;
+// Bring the database schema up to date before accepting traffic.
+runMigrations({ silent: false });
 
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+const server = app.listen(config.port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Server running at http://localhost:${config.port} (${config.env})`);
 });
+
+for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.on(signal, () => {
+        // eslint-disable-next-line no-console
+        console.log(`\n${signal} received — shutting down.`);
+        server.close(() => process.exit(0));
+    });
+}
