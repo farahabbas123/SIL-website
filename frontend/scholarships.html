@@ -68,61 +68,10 @@
       <div>Name</div><div>Location</div><div>Type</div><div>Closing date</div>
     </div>
 
-    <a class="board-row" data-type="postgrad-research" href="https://www.rhodeshouse.ox.ac.uk" target="_blank" rel="noopener">
-      <div class="name">Rhodes Scholarship</div>
-      <div class="sub">University of Oxford, UK</div>
-      <div class="tag">Postgraduate (Research)</div>
-      <div class="closing">3 August 2027</div>
-    </a>
+    <p id="board-loading" class="form-note" style="padding:24px 26px;">Loading opportunities…</p>
+    <p id="board-error" class="form-note" style="padding:24px 26px;display:none;">Could not load opportunities. Is the backend running?</p>
 
-    <a class="board-row" data-type="postgrad-coursework" href="https://www.chevening.org" target="_blank" rel="noopener">
-      <div class="name">Chevening Scholarship</div>
-      <div class="sub">United Kingdom (various universities)</div>
-      <div class="tag">Postgraduate (Coursework)</div>
-      <div class="closing soon">4 November 2026</div>
-    </a>
-
-    <a class="board-row" data-type="postgrad-coursework" href="https://www.fulbright.org.au" target="_blank" rel="noopener">
-      <div class="name">Fulbright Postgraduate Scholarship</div>
-      <div class="sub">United States (various universities)</div>
-      <div class="tag">Postgraduate (Coursework)</div>
-      <div class="closing soon">15 September 2026</div>
-    </a>
-
-    <a class="board-row" data-type="other" href="https://www.dfat.gov.au/people-to-people/australia-awards/australia-awards-endeavour-leadership-program" target="_blank" rel="noopener">
-      <div class="name">Endeavour Leadership Program</div>
-      <div class="sub">Global — outbound from Australia</div>
-      <div class="tag">All Levels</div>
-      <div class="closing">30 June 2027</div>
-    </a>
-
-    <a class="board-row" data-type="postgrad-coursework" href="https://www.daad.de" target="_blank" rel="noopener">
-      <div class="name">DAAD Study Scholarship</div>
-      <div class="sub">Germany (various universities)</div>
-      <div class="tag">Postgraduate (Coursework)</div>
-      <div class="closing">15 October 2026</div>
-    </a>
-
-    <a class="board-row" data-type="undergraduate" href="https://www.dfat.gov.au/people-to-people/new-colombo-plan" target="_blank" rel="noopener">
-      <div class="name">New Colombo Plan Scholarship</div>
-      <div class="sub">Indo-Pacific region</div>
-      <div class="tag">Undergraduate</div>
-      <div class="closing soon">1 September 2026</div>
-    </a>
-
-    <a class="board-row" data-type="undergraduate" href="https://www.anu.edu.au" target="_blank" rel="noopener">
-      <div class="name">ANU Vice-Chancellor's International Scholarship</div>
-      <div class="sub">Australian National University</div>
-      <div class="tag">Undergraduate</div>
-      <div class="closing">Rolling applications</div>
-    </a>
-
-    <a class="board-row" data-type="short-course" href="https://www.lauterpachtcentre.law.cam.ac.uk" target="_blank" rel="noopener">
-      <div class="name">International Law Summer School</div>
-      <div class="sub">University of Cambridge, UK</div>
-      <div class="tag">Short Course / Study Tour</div>
-      <div class="closing">1 December 2026</div>
-    </a>
+    <div id="board-rows"></div>
 
     <div class="board-empty" style="display:none;">No scholarships match this filter yet — check back soon or <a href="contact.html" style="color:var(--gold);">submit one</a>.</div>
   </div>
@@ -159,5 +108,6 @@
   </div>
 </footer>
 <script src="main.js"></script>
+<script src="scholarships.js"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ const { sendOk } = require('../lib/response');
 const authRoutes = require('../modules/auth/auth.routes');
 const usersRoutes = require('../modules/users/users.routes');
 const opportunitiesRoutes = require('../modules/opportunities/opportunities.routes');
+const contactRoutes = require('../modules/contact/contact.routes');
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.get('/test', (req, res) => {
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
 router.use('/opportunities', opportunitiesRoutes);
+router.use('/contact', contactRoutes);
 
 module.exports = router;

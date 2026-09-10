@@ -93,8 +93,10 @@ Versioned under **`/api/v1`** (unversioned `/api` is an alias). Every response u
 | `PATCH` | `/api/v1/users/:id/role` | admin | Set a user's role |
 | `GET` | `/api/v1/opportunities` (+ `/:id`) | No | Public board; filters `?type=`, `?soon=true` |
 | `POST`/`PUT`/`PATCH`/`DELETE` | `/api/v1/opportunities` (+ `/:id`) | admin | Manage listings |
+| `POST` | `/api/v1/contact` | No | Submit the contact form — persists the message and emails the team |
+| `GET` | `/api/v1/contact` (+ `/:id`) | admin | Review submitted messages |
 
-All of `GET`, `POST`, `PUT`, `PATCH`, `DELETE` are implemented and covered by the test suites (`tests/auth.test.js`, `tests/opportunities.test.js`, `tests/users.admin.test.js` — 42 tests).
+All of `GET`, `POST`, `PUT`, `PATCH`, `DELETE` are implemented and covered by the test suites (`tests/auth.test.js`, `tests/opportunities.test.js`, `tests/users.admin.test.js`, `tests/contact.test.js` — 51 tests).
 
 ### 3.3 Database integration
 
@@ -116,7 +118,7 @@ All of `GET`, `POST`, `PUT`, `PATCH`, `DELETE` are implemented and covered by th
 | Display backend responses on the frontend | ✅ Profile details, error messages (`error.message`), success confirmations |
 | Handle loading and error states | ✅ "Loading your profile…" state, inline error banners, disabled/"Please wait…" buttons |
 
-**Not yet connected to the backend:** the Contact form (§6) and the Postgraduate Opportunities board (§4). The board's `GET /api/v1/opportunities` endpoint now exists and is seeded — wiring `scholarships.html` to it (replacing the static rows) is the next step. See [§13](#13-notes--next-steps).
+The Contact form (§6) and the Postgraduate Opportunities board (§4) are now both wired to the backend — `scholarships.html` renders live from `GET /api/v1/opportunities`, and the contact form posts to `POST /api/v1/contact`. See [§13](#13-notes--next-steps) for what's still open.
 
 ---
 
@@ -152,7 +154,7 @@ Users can filter the board by:
 - Every card/row is fully clickable and opens the official provider website in a new tab.
 - Listings closing soon are visually flagged using the SIL **gold accent** colour.
 
-Currently the board reads from a static list in `scholarships.html`. Swapping this for real API data is a Phase 2 item — see §5.
+The board fetches live from `GET /api/v1/opportunities` (`frontend/scholarships.js`); filtering and the closing-soon flag stay client-side but now operate on real API data — see §5.
 
 ---
 
@@ -174,7 +176,7 @@ opportunities
 ├── created_at / updated_at — TEXT
 ```
 
-`closingSoon` is **computed** by the API (within `SOON_THRESHOLD_DAYS`, default 30) — not stored. The frontend board still renders a static list in `scholarships.html`; pointing it at `GET /api/v1/opportunities` is the next step.
+`closingSoon` is **computed** by the API (within `SOON_THRESHOLD_DAYS`, default 30) — not stored. `scholarships.html` renders this list live via `frontend/scholarships.js`.
 
 ### users (backend — implemented)
 
@@ -193,6 +195,18 @@ users
 
 Single-use, expiring tokens for password reset and email verification. Only the SHA-256 hash of each token is stored.
 
+### contact_messages (backend — implemented)
+
+```text
+contact_messages
+├── id         — INTEGER pk
+├── name       — TEXT
+├── email      — TEXT
+├── reason     — TEXT, nullable (the form's "I'm reaching out about" dropdown)
+├── message    — TEXT
+└── created_at — TEXT
+```
+
 ---
 
 ## 6. Contact Form
@@ -206,7 +220,7 @@ A front-end contact form with the following fields:
 
 On submit, an on-page confirmation message appears (no page reload).
 
-**Current scope:** front-end only — no backend, no email delivery yet. Wiring it to a real inbox or an `/api/contact` endpoint is a Phase 2 item.
+**Current scope:** posts to `POST /api/v1/contact`, which validates the input, stores the message in `contact_messages`, and notifies the team via `sendMail()` (dev stub — logs to the console; swap in a real transport for production, see `backend/src/lib/mailer.js`). Admins can review past submissions via `GET /api/v1/contact`.
 
 ---
 
@@ -270,7 +284,8 @@ SIL-website/
 │   ├── signin.html           Sign In / Create Account
 │   ├── profile.html          Profile — view/edit details, change password, delete account
 │   ├── styles.css            Shared design system + all page styles
-│   ├── main.js               Shared behaviour (nav, filters, contact form, animations, auth-aware nav)
+│   ├── main.js               Shared behaviour (nav, contact form, animations, auth-aware nav)
+│   ├── scholarships.js        Opportunities board: fetch, render, client-side filter
 │   ├── signin.js              Sign in / sign up API calls
 │   └── profile.js             Profile page API calls
 └── backend/
@@ -287,9 +302,10 @@ SIL-website/
     │   └── modules/
     │       ├── auth/          register / login / logout / password-reset / verify-email
     │       ├── users/         /me self-service + admin management  (model·repo·service·controller)
-    │       └── opportunities/ public board + admin CRUD           (model·repo·service·controller)
+    │       ├── opportunities/ public board + admin CRUD           (model·repo·service·controller)
+    │       └── contact/       public submit + admin review        (model·repo·service·controller)
     ├── package.json / package-lock.json / .env.example
-    └── tests/                 auth · opportunities · users.admin  (42 tests)
+    └── tests/                 auth · opportunities · users.admin · contact  (51 tests)
 ```
 
 Every `.html` file links to `styles.css` and its JS via relative paths, so the `frontend/` folder must stay together. The backend serves `frontend/` directly, so in normal use only one server needs to run.
@@ -368,10 +384,10 @@ npm test
 4. ✅ About Us
 5. ✅ Portfolio pages
 6. ✅ Jobs Board
-7. ✅ **Postgraduate Opportunities Board** (static data)
+7. ✅ **Postgraduate Opportunities Board** — live from `GET /api/v1/opportunities`
 8. ✅ Filtering functionality
 9. ✅ External opportunity links
-10. ✅ Contact form (front-end only)
+10. ✅ Contact form — posts to `POST /api/v1/contact` (persisted + emailed)
 11. ✅ Sign In / Create Account UI — **now connected to a real backend**
 12. ✅ Profile page (view/edit details, change password, delete account)
 13. ✅ Backend server, database, and REST API (§3)
@@ -379,14 +395,13 @@ npm test
 ### Phase 2 — Future Development
 
 1. Persistent session store (see §13) for production deployment
-2. Move opportunities (§4) into the database, served via `GET /api/opportunities`
-3. Admin management system for adding/editing opportunities
-4. Opportunity submission form (for organisations/universities)
-5. Wire the Contact form to a real endpoint / email delivery
-6. Advanced filtering (domestic-only, age, etc.)
-7. Interactive map (jobs + scholarships by location)
-8. Real Google OAuth (currently a placeholder button)
-9. Additional scholarship resources ("find out more" / tips & tricks pages)
+2. Admin management UI for adding/editing opportunities and reviewing contact messages (the CRUD/list endpoints exist; no frontend yet)
+3. Opportunity submission form (for organisations/universities)
+4. Real email delivery for contact notifications (currently a console dev stub — see `backend/src/lib/mailer.js`)
+5. Advanced filtering (domestic-only, age, etc.)
+6. Interactive map (jobs + scholarships by location)
+7. Real Google OAuth (currently a placeholder button)
+8. Additional scholarship resources ("find out more" / tips & tricks pages)
 
 ---
 
@@ -395,4 +410,5 @@ npm test
 - **Sessions** currently use Express's default in-memory store — fine for development, but swap in a persistent store (e.g. `connect-sqlite3`, Redis) before deploying, since restarting the server logs everyone out.
 - Set a real, unique `SESSION_SECRET` in `.env` before deploying anywhere public — never reuse the example value.
 - `database.db` is created automatically in `backend/` on first run; it's git-ignored, so each environment starts fresh unless you run `npm run seed` again.
-- The Postgraduate Opportunities board and Contact form are the two remaining pieces of the frontend still using static/front-end-only data — natural next targets now that the auth backend pattern (routes → tests → frontend fetch calls) is established.
+- **Contact notifications** go through `sendMail()`, a dev stub that logs to the console (see `backend/src/lib/mailer.js`) — swap in a real transport (nodemailer + SMTP, SES, Postmark, Resend…) before relying on it in production. Messages are always persisted to `contact_messages` regardless, so nothing is lost even without a working mail transport.
+- Every frontend page now talks to the real backend — the two former static/front-end-only pieces (the Postgraduate Opportunities board and the Contact form) are wired up. The next natural target is an admin UI for opportunities and contact messages, since the underlying `GET`/`POST`/`PUT`/`PATCH`/`DELETE` endpoints already exist.

@@ -37,8 +37,9 @@ backend/
 │   └── modules/
 │       ├── auth/    register, login, logout, password-reset, verify-email, token service
 │       ├── users/   /me self-service + admin user management; model + repo + service
-│       └── opportunities/  public board + admin CRUD; model + repo + service
-├── tests/  auth.test.js  opportunities.test.js  users.admin.test.js
+│       ├── opportunities/  public board + admin CRUD; model + repo + service
+│       └── contact/        public submit + admin review; model + repo + service
+├── tests/  auth.test.js  opportunities.test.js  users.admin.test.js  contact.test.js
 └── app.js · database.js · seed.js   thin shims re-exporting from src/ (back-compat)
 ```
 
@@ -110,6 +111,9 @@ Base URL `http://localhost:3000`. Canonical prefix **`/api/v1`** (unversioned `/
 | `POST` | `/api/v1/opportunities` | **admin** | Create. |
 | `PUT` / `PATCH` | `/api/v1/opportunities/:id` | **admin** | Replace / partially update. |
 | `DELETE` | `/api/v1/opportunities/:id` | **admin** | Delete. |
+| `POST` | `/api/v1/contact` | – | `{ name, email, reason?, message }` → persists the message and emails the team (`sendMail()` dev stub). |
+| `GET` | `/api/v1/contact` | **admin** | List submitted messages. `meta.count` included. |
+| `GET` | `/api/v1/contact/:id` | **admin** | One message. |
 
 Auth is a signed cookie session (`express-session`, 1-day `maxAge`, `httpOnly`, `sameSite=lax`). `session` routes → `401` without one; **admin** routes → `403` if the session user isn't an admin.
 
@@ -138,6 +142,11 @@ user_tokens             — single-use, expiring; only the SHA-256 hash is store
   id INTEGER pk          user_id INTEGER FK → users(id) ON DELETE CASCADE
   type TEXT              — 'password_reset' | 'email_verify'
   token_hash TEXT        expires_at TEXT     used_at TEXT     created_at TEXT
+
+contact_messages        — one row per contact-form submission
+  id INTEGER pk          name TEXT            email TEXT
+  reason TEXT            — nullable, the form's "I'm reaching out about" dropdown
+  message TEXT           created_at TEXT
 
 _migrations             — which migration files have been applied
 ```

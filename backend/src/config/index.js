@@ -62,6 +62,9 @@ const config = {
 
     // An opportunity within this many days of its closing date is "closing soon".
     soonThresholdDays: num(process.env.SOON_THRESHOLD_DAYS, 30),
+
+    // Inbox that contact-form submissions are emailed to.
+    contactRecipientEmail: process.env.CONTACT_EMAIL || 'hello@stepintointllaw.org',
 };
 
 module.exports = config;

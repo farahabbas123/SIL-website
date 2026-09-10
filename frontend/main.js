@@ -178,34 +178,56 @@ document.addEventListener('DOMContentLoaded', () => {
     drawPins();
   }
 
-  // ---------- Scholarship board: filter tabs ----------
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const boardRows = document.querySelectorAll('.board-row');
-  if (filterBtns.length && boardRows.length) {
-    const emptyState = document.querySelector('.board-empty');
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const type = btn.dataset.type;
-        let visibleCount = 0;
-        boardRows.forEach(row => {
-          const match = type === 'all' || row.dataset.type === type;
-          row.style.display = match ? 'grid' : 'none';
-          if (match) visibleCount++;
-        });
-        if (emptyState) emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
-      });
-    });
-  }
-
-  // ---------- Contact form (front-end only demo) ----------
+  // ---------- Contact form ----------
+  // Real submission handled here so every page keeps shared nav/animation
+  // behaviour in one file; scholarships.js carries the board's own logic
+  // since it needs a network fetch before the filters have anything to show.
   const contactForm = document.getElementById('contact-form');
   if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+    const submitLabel = submitBtn ? submitBtn.textContent : '';
+    const errorEl = document.getElementById('contact-error');
+    const successEl = document.getElementById('contact-success');
+
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      document.querySelector('.form-success').classList.add('visible');
-      contactForm.reset();
+      if (errorEl) { errorEl.textContent = ''; errorEl.classList.remove('visible'); }
+      if (successEl) successEl.classList.remove('visible');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending…'; }
+
+      const fname = document.getElementById('fname').value.trim();
+      const lname = document.getElementById('lname').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const reason = document.getElementById('reason').value;
+      const message = document.getElementById('message').value.trim();
+
+      try {
+        const res = await fetch('/api/v1/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: `${fname} ${lname}`.trim(), email, reason, message })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          if (errorEl) {
+            errorEl.textContent = (data.error && data.error.message) || 'Could not send your message.';
+            errorEl.classList.add('visible');
+          }
+          return;
+        }
+
+        contactForm.reset();
+        if (successEl) successEl.classList.add('visible');
+
+      } catch (err) {
+        if (errorEl) {
+          errorEl.textContent = 'Could not reach the server. Is the backend running?';
+          errorEl.classList.add('visible');
+        }
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitLabel; }
+      }
     });
   }
 
