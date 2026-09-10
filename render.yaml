@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: sil-website
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install --ignore-scripts
+    startCommand: npm start
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CONTACT_EMAIL
+        value: hello@stepintointllaw.org
+      # Render's free plan has an EPHEMERAL disk — the SQLite file (and
+      # every user/opportunity/contact message) is wiped on every deploy
+      # and on periodic restarts. Fine to try the site live; upgrade to a
+      # paid plan + add a persistent disk before relying on this for real
+      # user data. See PROJECT-DOCS.md §13.
