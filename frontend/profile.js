@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const navName = document.getElementById('nav-user-name');
     if (navName) navName.textContent = user.name.split(' ')[0] || 'Account';
+    const navNameMobile = document.getElementById('nav-user-name-mobile');
+    if (navNameMobile) navNameMobile.textContent = user.name.split(' ')[0] || 'Account';
   }
 
   // ---------- Load current profile ----------
@@ -70,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (!res.ok) {
-        showBanner('details-error', (data.error && data.error.message) || 'Could not update your profile.');
+        showBanner('details-error', apiErrorMessage(data, 'Could not update your profile.'));
         return;
       }
 
@@ -107,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (!res.ok) {
-        showBanner('password-error', (data.error && data.error.message) || 'Could not update your password.');
+        showBanner('password-error', apiErrorMessage(data, 'Could not update your password.'));
         return;
       }
 
@@ -120,14 +122,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ---------- Sign out ----------
-  const signOutBtn = document.getElementById('signout-btn');
-  signOutBtn.addEventListener('click', async () => {
-    try {
-      await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
-    } catch (err) {
-      // ignore — redirect regardless
-    }
-    window.location.href = 'signin.html';
+  // Two buttons share this behaviour: the desktop nav-actions one and its
+  // duplicate inside the mobile nav flyout (nav-actions is hidden on mobile).
+  document.querySelectorAll('#signout-btn, #signout-btn-mobile').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      try {
+        await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
+      } catch (err) {
+        // ignore — redirect regardless
+      }
+      window.location.href = 'signin.html';
+    });
   });
 
   // ---------- Delete account ----------

@@ -130,6 +130,11 @@ nav.primary-nav li.current a::after{width:100%;}
   gap:12px;
 }
 
+/* Duplicate sign-in/sign-out controls shown only inside the mobile
+   nav flyout — the desktop .nav-actions row is hidden below 900px
+   (see media query) with no other way to reach these actions. */
+.nav-mobile-actions{display:none;}
+
 .btn{
   display:inline-flex;
   align-items:center;
@@ -497,6 +502,16 @@ footer{background:var(--navy-950);border-top:1px solid var(--line);padding:60px 
   .has-dropdown:hover .dropdown-panel{display:block;}
   .nav-actions .btn-ghost,.nav-actions .btn-secondary{display:none;}
   .nav-toggle{display:flex;}
+  .nav-mobile-actions{
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+    padding:16px 4px 4px;
+    border-top:1px solid var(--line);
+    margin-top:6px;
+  }
+  .nav-mobile-actions .btn-ghost{padding:10px 4px;}
+  nav.primary-nav.open .nav-mobile-actions{display:flex;}
   .mission-grid{grid-template-columns:1fr;}
   .mission-figure{position:static;margin:0 auto 40px;}
   .pathways-grid{grid-template-columns:1fr;}

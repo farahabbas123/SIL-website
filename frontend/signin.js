@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (!res.ok) {
-          showError((data.error && data.error.message) || 'Could not sign in.');
+          showError(apiErrorMessage(data, 'Could not sign in.'));
           return;
         }
 
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (!res.ok) {
-          showError((data.error && data.error.message) || 'Could not create your account.');
+          showError(apiErrorMessage(data, 'Could not create your account.'));
           return;
         }
 

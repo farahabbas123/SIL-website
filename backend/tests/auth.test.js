@@ -327,3 +327,74 @@ describe('POST /api/v1/auth/password-reset', () => {
         expect(res.status).toBe(400);
     });
 });
+
+// ------------------------------------------------------------
+// Email verification flow
+// ------------------------------------------------------------
+
+describe('POST /api/v1/auth/verify-email', () => {
+    it('blocks unauthenticated requests', async () => {
+        const res = await request(app).post(`${api}/auth/verify-email`);
+        expect(res.status).toBe(401);
+    });
+
+    it('issues a token for the signed-in user and lets them confirm it', async () => {
+        const agent = request.agent(app);
+        await agent.post(`${api}/auth/register`).send({
+            name: 'Verify Me',
+            email: 'verify@example.com',
+            password: 'password123',
+        });
+
+        const requested = await agent.post(`${api}/auth/verify-email`);
+        expect(requested.status).toBe(200);
+        const token = requested.body.data.devToken;
+        expect(token).toBeTruthy();
+
+        const confirmed = await request(app).post(`${api}/auth/verify-email/confirm`).send({ token });
+        expect(confirmed.status).toBe(200);
+    });
+});
+
+describe('POST /api/v1/auth/verify-email/confirm', () => {
+    it('rejects a missing token', async () => {
+        const res = await request(app).post(`${api}/auth/verify-email/confirm`).send({});
+        expect(res.status).toBe(400);
+        expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('rejects an invalid or already-used token', async () => {
+        const res = await request(app).post(`${api}/auth/verify-email/confirm`).send({
+            token: 'not-a-real-token',
+        });
+        expect(res.status).toBe(400);
+    });
+});
+
+// ------------------------------------------------------------
+// Cross-cutting exception handling (§4 of testing/TESTING_PROCESS.md)
+// ------------------------------------------------------------
+
+describe('Exception handling', () => {
+    it('returns 400 BAD_REQUEST for a malformed JSON body instead of crashing', async () => {
+        const res = await request(app)
+            .post(`${api}/auth/login`)
+            .set('Content-Type', 'application/json')
+            .send('{not valid json');
+        expect(res.status).toBe(400);
+        expect(res.body.error.code).toBe('BAD_REQUEST');
+    });
+
+    it('returns a standard 404 envelope for an unknown route', async () => {
+        const res = await request(app).get(`${api}/this-route-does-not-exist`);
+        expect(res.status).toBe(404);
+        expect(res.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('never leaks a stack trace or internal details in an error response', async () => {
+        const res = await request(app).get(`${api}/this-route-does-not-exist`);
+        const text = JSON.stringify(res.body);
+        expect(text).not.toMatch(/at\s+\S+\s+\(.*:\d+:\d+\)/); // no stack frame lines
+        expect(text).not.toMatch(/node_modules/);
+    });
+});

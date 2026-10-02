@@ -2,6 +2,21 @@
 // STEP INTO INTL LAW — shared behaviour
 // ============================================================
 
+// Turns an API error envelope into a message fit to show a user.
+// Prefers field-level validation details (e.g. "password must be at
+// least 8 characters") over the generic top-level message, since the
+// generic message ("Validation failed.") on its own tells the user
+// nothing about what to fix.
+function apiErrorMessage(data, fallback) {
+  const err = data && data.error;
+  if (!err) return fallback;
+  if (Array.isArray(err.details) && err.details.length) {
+    return err.details.map(d => d.message).join(' ');
+  }
+  return err.message || fallback;
+}
+window.apiErrorMessage = apiErrorMessage;
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Mobile nav toggle ----------
@@ -211,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!res.ok) {
           if (errorEl) {
-            errorEl.textContent = (data.error && data.error.message) || 'Could not send your message.';
+            errorEl.textContent = apiErrorMessage(data, 'Could not send your message.');
             errorEl.classList.add('visible');
           }
           return;
@@ -233,16 +248,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Nav: reflect signed-in state ----------
   // Swaps the "Sign In" link for "Profile" when a session cookie is active.
+  // Updates both the desktop nav-actions link and its duplicate inside the
+  // mobile nav flyout (nav-actions is hidden on mobile — see styles.css).
   // Runs on every page; fails silently if the backend isn't running.
-  const signInLink = document.querySelector('.nav-actions a.btn-ghost[href="signin.html"]');
-  if (signInLink) {
+  const signInLinks = document.querySelectorAll(
+    '.nav-actions a.btn-ghost[href="signin.html"], .nav-mobile-actions a.btn-ghost[href="signin.html"]'
+  );
+  if (signInLinks.length) {
     fetch('/api/v1/users/me', { credentials: 'same-origin' })
       .then(res => (res.ok ? res.json() : null))
       .then(body => {
         const user = body && body.data && body.data.user;
         if (user) {
-          signInLink.textContent = user.name.split(' ')[0] || 'Profile';
-          signInLink.href = 'profile.html';
+          signInLinks.forEach(link => {
+            link.textContent = user.name.split(' ')[0] || 'Profile';
+            link.href = 'profile.html';
+          });
         }
       })
       .catch(() => { /* backend not running / not signed in — leave as "Sign In" */ });
